@@ -1,0 +1,132 @@
+@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Crear Cuenta</title>
+    <link rel="stylesheet" href="~/css/style.css?v=4">
+</head>
+<body>
+
+    <div class="container register-container">
+        
+        <header class="register-header">
+            <a href="/Acceso/Index" class="btn-back">⬅ Volver</a>
+            <h1>CREAR CUENTA</h1>
+        </header>
+
+        <main>
+            <form class="register-form" action="/Acceso/RegistrarUsuario" method="post">
+                
+                <div class="role-selector" style="justify-content: space-around;">
+                    <label class="radio-label">
+                        <input type="radio" name="rol" value="alumno" checked onchange="toggleFields()">
+                        <span class="custom-radio"></span>
+                        ALUMNO
+                    </label>
+                    <label class="radio-label">
+                        <input type="radio" name="rol" value="profesor" onchange="toggleFields()">
+                        <span class="custom-radio"></span>
+                        PROFESOR
+                    </label>
+                    <label class="radio-label">
+                        <input type="radio" name="rol" value="trabajador" onchange="toggleFields()">
+                        <span class="custom-radio"></span>
+                        TRABAJADOR
+                    </label>
+                </div>
+
+                <div class="row">
+                    <div class="col">
+                        <label>Nombre</label>
+                        <input type="text" name="nombre" class="input-box" maxlength="50" required>
+                    </div>
+                    <div class="col">
+                        <label>Apellido Paterno</label>
+                        <input type="text" name="ape_pat" class="input-box" maxlength="50" required>
+                    </div>
+                </div>
+
+                <label>Correo</label>
+                <input type="email" name="correo" class="input-box" required>
+
+                <div class="row">
+                    <div class="col">
+                        <label id="lblIdentificador">Boleta (10 dígitos)</label>
+                        <input type="text" name="boleta_rfc" id="inputIdentificador" class="input-box" maxlength="10" required>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col">
+                        <label>Contraseña</label>
+                        <input type="password" name="password" class="input-box" required>
+                    </div>
+                    <div class="col">
+                        <label>Confirmar contraseña</label>
+                        <input type="password" class="input-box" required>
+                    </div>
+                </div>
+
+                <div id="divAdminKey" style="display:none;">
+                    <label>Clave de admin (Solo Trabajadores)</label>
+                    <input type="password" name="adminKey" id="adminKey" class="input-box">
+                </div>
+
+                <button type="submit" class="btn-login btn-register" style="margin-top: 20px;">Registrar</button>
+            
+                @if (ViewBag.Error != null)
+                {
+                    <div style="background-color: #ffcdd2; color: #c62828; padding: 10px; border-radius: 5px; margin-top: 15px; text-align: center; font-weight: bold;">
+                        @ViewBag.Error
+                    </div>
+                }
+            </form>
+        </main>
+    </div>
+
+    <script>
+        function toggleFields() {
+            const rol = document.querySelector('input[name="rol"]:checked').value;
+            
+            const inputIdentificador = document.getElementById('inputIdentificador');
+            const lblIdentificador = document.getElementById('lblIdentificador');
+            const divAdminKey = document.getElementById('divAdminKey');
+            const inputAdminKey = document.getElementById('adminKey');
+
+            if (rol === 'alumno') {
+                // ALUMNO: 10 dígitos, SIN clave admin
+                inputIdentificador.maxLength = 10;
+                inputIdentificador.placeholder = "Ingrese Boleta (10 dígitos)";
+                lblIdentificador.innerText = "Boleta (10 dígitos)";
+                
+                divAdminKey.style.display = 'none';
+                inputAdminKey.value = ""; 
+
+            } else if (rol === 'profesor') {
+                // PROFESOR: 13 caracteres, SIN clave admin
+                inputIdentificador.maxLength = 13;
+                inputIdentificador.placeholder = "Ingrese RFC (13 caracteres)";
+                lblIdentificador.innerText = "RFC (13 caracteres)";
+                
+                divAdminKey.style.display = 'none';
+                inputAdminKey.value = "";
+
+            } else {
+                // TRABAJADOR: 13 caracteres, CON clave admin
+                inputIdentificador.maxLength = 13;
+                inputIdentificador.placeholder = "Ingrese RFC (13 caracteres)";
+                lblIdentificador.innerText = "RFC (13 caracteres)";
+                
+                divAdminKey.style.display = 'block'; 
+            }
+        }
+
+        window.onload = toggleFields;
+    </script>
+</body>
+</html>

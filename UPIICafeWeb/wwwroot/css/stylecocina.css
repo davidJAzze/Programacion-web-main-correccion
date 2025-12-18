@@ -1,0 +1,332 @@
+/* =========================================
+   1. CONFIGURACIÓN GENERAL
+   ========================================= */
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+body {
+    height: 100vh;
+    overflow: hidden;
+    display: flex;
+    background-color: #e0e0e0;
+}
+
+/* =========================================
+   2. BARRA LATERAL (VERDE IPN)
+   ========================================= */
+.sidebar {
+    width: 110px;
+    background-color: #008000;
+    display: flex;
+    flex-direction: column;
+    padding: 15px 10px;
+    gap: 15px;
+    z-index: 10;
+}
+
+.sidebar-logo {
+    text-align: center;
+    color: white;
+    font-weight: bold;
+    margin-bottom: 20px;
+    font-size: 1.2rem;
+}
+
+.sidebar-role {
+    text-align: center;
+    color: #fdd835;
+    margin-bottom: 20px;
+}
+
+/* BOTÓN CORTE DE CAJA */
+.btn-corte {
+    background: rgba(255, 255, 255, 0.1);
+    color: white;
+    border: none;
+    padding: 10px;
+    border-radius: 10px;
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-decoration: none;
+    transition: 0.3s;
+}
+
+.btn-corte:hover {
+    background: rgba(255, 255, 255, 0.2);
+}
+
+.btn-salir {
+    margin-top: auto;
+    width: 100%;
+    color: white;
+    text-decoration: none;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    background: rgba(255, 0, 0, 0.2);
+    padding: 10px;
+    border-radius: 10px;
+    transition: 0.3s;
+}
+
+.btn-salir:hover {
+    background: rgba(255, 0, 0, 0.4);
+}
+
+/* =========================================
+   3. CONTENIDO PRINCIPAL
+   ========================================= */
+.main-content {
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+}
+
+.top-bar {
+    background-color: white;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 30px;
+    height: 70px;
+    border-bottom: 1px solid #ccc;
+}
+
+.brand-title {
+    font-size: 1.5rem;
+    font-weight: 800;
+    color: #d32f2f;
+}
+
+.brand-title span {
+    color: #008000;
+}
+
+.kitchen-grid {
+    padding: 25px;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 25px;
+    overflow-y: auto;
+    height: calc(100vh - 70px);
+}
+
+/* =========================================
+   4. TARJETAS
+   ========================================= */
+.comanda-card {
+    background-color: #fff;
+    border-top: 8px solid #fdd835;
+    border-radius: 10px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    animation: fadeIn 0.5s ease-out;
+    height: fit-content;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.comanda-header {
+    background-color: #f9f9f9;
+    padding: 15px;
+    border-bottom: 1px dashed #ccc;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.order-num {
+    font-size: 1.6rem;
+    font-weight: 900;
+    color: #008000;
+}
+
+.order-time {
+    font-size: 0.9rem;
+    color: #777;
+    font-weight: bold;
+}
+
+.comanda-body {
+    padding: 15px;
+    flex-grow: 1;
+}
+
+.comanda-item {
+    font-size: 1.1rem;
+    margin-bottom: 10px;
+    color: #333;
+    border-bottom: 1px solid #eee;
+    padding-bottom: 5px;
+    display: flex;
+    align-items: center;
+}
+
+.qty-badge {
+    background-color: #008000;
+    color: white;
+    font-weight: bold;
+    padding: 4px 10px;
+    border-radius: 50px;
+    margin-right: 10px;
+}
+
+.comanda-footer {
+    padding: 15px;
+    background-color: #f9f9f9;
+    text-align: center;
+}
+
+/* BOTÓN COBRAR (VERDE) */
+.btn-finish {
+    width: 100%;
+    background-color: #2e7d32;
+    color: white;
+    border: none;
+    padding: 15px;
+    font-weight: bold;
+    font-size: 1.2rem;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: 0.3s;
+    text-transform: uppercase;
+    box-shadow: 0 4px 0 #1b5e20;
+}
+
+.btn-finish:hover {
+    background-color: #388e3c;
+    transform: translateY(-2px);
+}
+
+.btn-finish:active {
+    transform: translateY(2px);
+    box-shadow: none;
+}
+
+.empty-state {
+    grid-column: 1 / -1;
+    text-align: center;
+    padding-top: 100px;
+    color: #888;
+}
+
+/* =========================================
+   5. MODALES
+   ========================================= */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.7);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 100;
+    backdrop-filter: blur(2px);
+}
+
+.modal-box {
+    background: white;
+    padding: 30px;
+    border-radius: 15px;
+    width: 400px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+    text-align: center;
+}
+
+/* Calculadora */
+.calc-display {
+    font-size: 2.5rem;
+    color: #008000;
+    font-weight: bold;
+    margin: 10px 0;
+}
+
+.calc-input {
+    width: 100%;
+    padding: 15px;
+    font-size: 1.5rem;
+    text-align: center;
+    border: 2px solid #ccc;
+    border-radius: 10px;
+    margin-bottom: 15px;
+}
+
+.change-display {
+    font-size: 1.2rem;
+    color: #d32f2f;
+    font-weight: bold;
+    margin-bottom: 20px;
+}
+
+.btn-confirm-pay {
+    width: 100%;
+    background: #008000;
+    color: white;
+    padding: 15px;
+    font-size: 1.2rem;
+    font-weight: bold;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+}
+
+/* --- AQUÍ ESTÁ EL CAMBIO: BOTÓN CANCELAR AMARILLO --- */
+.btn-close {
+    background: #fdd835; /* Amarillo Institucional */
+    color: #333; /* Texto oscuro para contraste */
+    border: none;
+    padding: 10px 20px;
+    border-radius: 5px;
+    cursor: pointer;
+    margin-top: 10px;
+    font-weight: bold;
+    transition: 0.3s;
+}
+
+.btn-close:hover {
+    background: #fbc02d; /* Amarillo más oscuro al pasar mouse */
+}
+/* ---------------------------------------------------- */
+
+/* Tabla Corte */
+.report-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 15px;
+}
+
+.report-table th,
+.report-table td {
+    padding: 10px;
+    text-align: left;
+    border-bottom: 1px solid #ddd;
+}
+
+.report-total {
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: #008000;
+    margin-top: 20px;
+    text-align: right;
+}

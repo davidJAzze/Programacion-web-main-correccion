@@ -1,0 +1,131 @@
+@model List<UPIICafeWeb.Models.ProductoModel>
+@{
+    ViewData["Title"] = "Menú";
+    Layout = "_Layout";
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/stylemenu.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/menu-inline.css" asp-append-version="true" />
+}
+
+<!-- Script pequeño: aquí solo pasamos los datos del Model a JS -->
+<script>
+    window._MENU_DB_ = [
+        @foreach (var item in Model)
+        {
+            string catTexto = "otros";
+            if (item.IdCategoria == 1) catTexto = "comida";
+            if (item.IdCategoria == 2) catTexto = "paquetes";
+            if (item.IdCategoria == 3) catTexto = "bebidas";
+            if (item.IdCategoria == 4) catTexto = "postres";
+
+            <text>
+            {
+                id: @item.Id,
+                cat: '@catTexto',
+                name: '@Html.Raw(item.Nombre)',
+                desc: '@Html.Raw(item.Descripcion)',
+                price: @item.PrecioFinal,
+                img: '@item.ImagenUrl'
+            },
+            </text>
+        }
+    ];
+</script>
+
+<!-- Contenedor principal (porque ya no hay <body class="menu-layout"> ) -->
+<div class="menu-layout">
+
+    <nav class="sidebar">
+        <div style="text-align:center; color:white; font-weight:bold; margin-bottom:10px; font-size:1.2rem;">
+            IPN
+        </div>
+
+        <button class="category-btn active" onclick="filtrarMenu('comida', this)">
+            <div class="icon-circle">🍔</div>
+            <div class="cat-name">Comida</div>
+        </button>
+        <button class="category-btn" onclick="filtrarMenu('paquetes', this)">
+            <div class="icon-circle">🍱</div>
+            <div class="cat-name">Paquetes</div>
+        </button>
+        <button class="category-btn" onclick="filtrarMenu('bebidas', this)">
+            <div class="icon-circle">🥤</div>
+            <div class="cat-name">Bebidas</div>
+        </button>
+        <button class="category-btn" onclick="filtrarMenu('postres', this)">
+            <div class="icon-circle">🍩</div>
+            <div class="cat-name">Postres</div>
+        </button>
+
+        <div style="margin-top: auto; width: 100%;">
+            <a href="/Acceso/Salir"
+               style="color: white; text-decoration: none; display: flex; flex-direction: column; align-items: center; background: rgba(255,0,0,0.2); padding: 10px; border-radius: 10px; transition: 0.3s;"
+               onmouseover="this.style.background='rgba(255,0,0,0.4)'"
+               onmouseout="this.style.background='rgba(255,0,0,0.2)'">
+                <span style="font-size: 1.5rem;">🚪</span>
+                <span style="font-size: 0.8rem; margin-top:5px;">Salir</span>
+            </a>
+        </div>
+    </nav>
+
+    <div class="main-content">
+
+        <header class="top-bar">
+            <div class="brand-title">UPII<span>CAFE</span></div>
+
+            <div class="user-badge" id="nombreUsuario">
+                <span style="font-size: 1.2rem;">👤</span>
+                ROL: @Context.Session.GetInt32("RolUsuario")
+            </div>
+        </header>
+
+        <div class="products-grid" id="gridProductos"></div>
+
+        <div class="cart-section">
+            <div class="cart-scroll-area">
+                <div class="cart-title" id="cartTitle">
+                    <div>🛒</div>
+                    Tu carrito está vacío
+                </div>
+                <div id="cartItems"></div>
+            </div>
+
+            <div class="pay-panel">
+                <div class="total-label">Total a Pagar</div>
+                <div class="total-amount" id="txtTotal">$0.00</div>
+                <button class="btn-pay" onclick="abrirModalPago()">PAGAR AHORA ➔</button>
+            </div>
+        </div>
+
+    </div>
+
+    <div id="modalTicket" class="modal-overlay" style="display:none;">
+        <div class="ticket-box">
+            <h1 id="ticketOrderNum" style="text-align: center; font-size: 2rem; margin: 0; color: #000;">ORDEN #000</h1>
+
+            <h2 style="text-align: center; color: #004d40; margin-bottom: 5px; font-size: 1.2rem;">CONFIRMAR PEDIDO</h2>
+            <div style="text-align: center; font-size: 0.8rem; color:#777; margin-bottom: 15px;">UPIICAFE - Punto de Venta</div>
+            <hr style="border: 1px dashed #ccc;">
+
+            <div id="ticketContent"></div>
+
+            <hr style="border: 1px dashed #ccc;">
+            <div class="ticket-total">
+                <span style="font-size:1rem; color:#777; font-weight:normal;">Total:</span>
+                <span id="ticketTotalDisplay">$0.00</span>
+            </div>
+
+            <div class="modal-buttons">
+                <button class="btn-cancel" onclick="cerrarModal()">CANCELAR</button>
+                <button class="btn-confirm" onclick="confirmarCompra()">✅ CONFIRMAR</button>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+@section Scripts {
+    <script src="~/js/menu.js" asp-append-version="true"></script>
+}

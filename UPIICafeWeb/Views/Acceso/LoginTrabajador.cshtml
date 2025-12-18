@@ -1,0 +1,70 @@
+@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Acceso Trabajadores</title>
+    <link rel="stylesheet" href="~/css/style.css">
+</head>
+<body>
+
+    <div class="container">
+        
+        <header class="register-header">
+            <a href="/Acceso/Index" class="btn-back">⬅ Volver</a>
+            <div style="flex-grow:1;"></div> 
+        </header>
+
+        <main>
+            <h1 style="margin-top:0;">Acceso Trabajadores</h1>
+            
+            <form action="/Acceso/ValidarTrabajador" method="post" style="width:100%;">
+                
+                <label>RFC</label>
+                <input type="text" name="rfc" class="input-box" placeholder="Ingrese su RFC" maxlength="13" required>
+                
+                <div class="input-wrapper">
+                    <label>Contraseña</label>
+                    <div class="input-wrapper">
+                    <input type="password" name="password" id="passwordInput" class="input-box" placeholder="Contraseña" required>
+                    <span class="toggle-icon" onclick="togglePassword()">👁️</span>
+</div>
+                
+                <button type="submit" class="btn-login">Iniciar sesión</button>
+
+                @if (ViewBag.Error != null)
+                {
+                    <div style="background-color: #ffcdd2; color: #c62828; padding: 10px; border-radius: 5px; margin-top: 15px; text-align: center; font-weight: bold;">
+                        @ViewBag.Error
+                    </div>
+                }
+
+                <a href="#" class="forgot-link">¿Olvidaste tu contraseña?</a>
+            </form>
+        </main>
+
+        <footer>
+            <br>
+        </footer>
+    </div>
+
+    <script>
+        function togglePassword() {
+            const passwordInput = document.getElementById('passwordInput');
+            const icon = document.querySelector('.toggle-icon');
+            
+            if (passwordInput.type === 'password') {
+                passwordInput.type = 'text';
+                icon.style.opacity = '0.5'; 
+            } else {
+                passwordInput.type = 'password';
+                icon.style.opacity = '1';
+            }
+        }
+    </script>
+</body>
+</html>

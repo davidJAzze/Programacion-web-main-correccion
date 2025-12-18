@@ -1,0 +1,40 @@
+@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login UI</title>
+    <link rel="stylesheet" href="~/css/style.css?v=2">
+</head>
+<body>
+
+    <div class="container">
+        <header>
+            <div class="user-icon"></div>
+            <a href="/Acceso/Registro" class="btn-crear" style="text-decoration:none; display:inline-block; text-align:center;">Crear cuenta</a>
+        </header>
+
+        <main>
+            <h1>¡Bienvenido de nuevo!</h1>
+            
+            <form action="/Acceso/Validar" method="post">
+                <input type="text" class="input-box" name="boleta_rfc" placeholder="Ingrese Boleta o RFC" maxlength="13" required>
+                <button type="submit" class="btn-login">Iniciar sesión</button>
+            </form>
+
+            <div class="visitor-text">
+                O continuar como: <a href="/Acceso/EntrarComoVisitante" class="visitor-link">Visitante</a>
+            </div>
+        </main>
+
+        <footer>
+            <a href="/Acceso/LoginTrabajador" class="worker-link">Soy Trabajador</a>
+        </footer>
+    </div>
+
+</body>
+</html>

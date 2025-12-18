@@ -1,0 +1,245 @@
+@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cocina - UPIICAFE</title>
+    <link rel="stylesheet" href="~/css/stylecocina.css">
+</head>
+
+<body>
+
+    <nav class="sidebar">
+        <div class="sidebar-logo">UPII<br>CAFE</div>
+        <div class="sidebar-role">
+            <div style="font-size: 2rem;">👨‍🍳</div>
+            <div style="font-size: 0.8rem;">CHEF / CAJA</div>
+        </div>
+        
+        <button class="btn-corte" onclick="abrirCorteCaja()">
+            <span style="font-size: 1.5rem;">💰</span>
+            <span style="font-size: 0.8rem;">Corte Caja</span>
+        </button>
+
+        <a href="/Acceso/Salir" class="btn-salir">
+            <span style="font-size: 1.5rem;">🚪</span>
+            <span style="font-size: 0.8rem;">Salir</span>
+        </a>
+    </nav>
+
+    <div class="main-content">
+        <header class="top-bar">
+            <div class="brand-title">PANTALLA DE <span>COCINA Y COBRO</span></div>
+            <div id="reloj" style="font-weight:bold; color:#555; font-size:1.2rem;">--:--:--</div>
+        </header>
+
+        <div class="kitchen-grid" id="gridComandas"></div>
+    </div>
+
+    <div id="modalCobro" class="modal-overlay" style="display:none;">
+        <div class="modal-box">
+            <h2 style="color:#004d40;">COBRAR ORDEN <span id="lblOrdenCobro">#0</span></h2>
+            
+            <p style="margin-top:10px;">Total a Pagar:</p>
+            <div class="calc-display" id="lblTotalCobro">$0.00</div>
+
+            <p>Dinero Recibido:</p>
+            <input type="number" id="txtRecibido" class="calc-input" placeholder="$0.00" oninput="calcularCambio()">
+
+            <div class="change-display" id="lblCambio">Cambio: $0.00</div>
+
+            <button class="btn-confirm-pay" onclick="confirmarPago()">✅ CONFIRMAR PAGO</button>
+            <button class="btn-close" onclick="cerrarCobro()">Cancelar</button>
+        </div>
+    </div>
+
+    <div id="modalCorte" class="modal-overlay" style="display:none;">
+        <div class="modal-box" style="width: 500px;">
+            <h2 style="color:#d32f2f;">CORTE DE CAJA DEL DÍA</h2>
+            <p style="color:#777; font-size:0.9rem;">Resumen de ventas finalizadas</p>
+
+            <div style="max-height: 300px; overflow-y: auto;">
+                <table class="report-table">
+                    <thead>
+                        <tr>
+                            <th>Orden</th>
+                            <th>Hora</th>
+                            <th>Total</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tablaVentasBody">
+                        </tbody>
+                </table>
+            </div>
+
+            <div class="report-total">
+                TOTAL: <span id="lblTotalVentas">$0.00</span>
+            </div>
+
+            <button class="btn-close" style="width:100%; background:#004d40; color:white;" onclick="document.getElementById('modalCorte').style.display='none'">CERRAR REPORTE</button>
+            
+            <button onclick="borrarHistorial()" style="margin-top:10px; background:none; border:none; color:red; cursor:pointer; font-size:0.8rem;">🗑️ Borrar Historial</button>
+        </div>
+    </div>
+
+    <script>
+        // VARIABLES GLOBALES
+        let pedidoActualId = null;
+        let totalActual = 0;
+
+        window.onload = () => {
+            renderizarPedidos();
+            actualizarReloj();
+            setInterval(renderizarPedidos, 3000);
+            setInterval(actualizarReloj, 1000);
+        };
+
+        function actualizarReloj() {
+            document.getElementById('reloj').innerText = new Date().toLocaleTimeString();
+        }
+
+        // --- RENDERIZAR PEDIDOS ---
+        function renderizarPedidos() {
+            // Solo renderizamos si no hay un modal abierto para no interrumpir al cajero
+            if(document.getElementById('modalCobro').style.display === 'flex') return;
+
+            const pedidos = JSON.parse(localStorage.getItem('pedidosCocina')) || [];
+            const grid = document.getElementById('gridComandas');
+            grid.innerHTML = '';
+
+            if (pedidos.length === 0) {
+                grid.innerHTML = '<div class="empty-state"><div style="font-size: 4rem;">✅</div><h2>Todo al día</h2><p>Esperando clientes...</p></div>';
+                return;
+            }
+
+            pedidos.forEach(pedido => {
+                // Agrupar items
+                const conteoItems = {};
+                pedido.items.forEach(item => { conteoItems[item.name] = (conteoItems[item.name] || 0) + 1; });
+
+                let listaItemsHTML = '';
+                for (const [nombre, cantidad] of Object.entries(conteoItems)) {
+                    listaItemsHTML += `<div class="comanda-item"><span class="qty-badge">${cantidad}</span> ${nombre}</div>`;
+                }
+
+                const card = document.createElement('div');
+                card.className = 'comanda-card';
+                card.innerHTML = `
+                    <div class="comanda-header">
+                        <div class="order-num">ORDEN #${pedido.numeroOrden}</div>
+                        <div class="order-time">${pedido.hora}</div>
+                    </div>
+                    <div class="comanda-body">${listaItemsHTML}</div>
+                    <div class="comanda-footer">
+                        <div style="font-size:1.2rem; font-weight:bold; margin-bottom:10px; color:#004d40;">Total: $${pedido.total.toFixed(2)}</div>
+                        <button class="btn-finish" onclick="iniciarCobro(${pedido.id}, ${pedido.total}, ${pedido.numeroOrden})">
+                            💰 COBRAR Y ENTREGAR
+                        </button>
+                    </div>
+                `;
+                grid.appendChild(card);
+            });
+        }
+
+        // --- LÓGICA DE COBRO ---
+        function iniciarCobro(id, total, numeroOrden) {
+            pedidoActualId = id;
+            totalActual = total;
+
+            document.getElementById('lblOrdenCobro').innerText = "#" + numeroOrden;
+            document.getElementById('lblTotalCobro').innerText = "$" + total.toFixed(2);
+            document.getElementById('txtRecibido').value = ""; // Limpiar input
+            document.getElementById('lblCambio').innerText = "Cambio: $0.00";
+            
+            document.getElementById('modalCobro').style.display = 'flex';
+            document.getElementById('txtRecibido').focus();
+        }
+
+        function calcularCambio() {
+            const recibido = parseFloat(document.getElementById('txtRecibido').value) || 0;
+            const cambio = recibido - totalActual;
+
+            const lblCambio = document.getElementById('lblCambio');
+            if(cambio >= 0) {
+                lblCambio.innerText = "Cambio: $" + cambio.toFixed(2);
+                lblCambio.style.color = "#004d40"; // Verde si alcanza
+            } else {
+                lblCambio.innerText = "Falta: $" + Math.abs(cambio).toFixed(2);
+                lblCambio.style.color = "#d32f2f"; // Rojo si falta
+            }
+        }
+
+        function confirmarPago() {
+            const recibido = parseFloat(document.getElementById('txtRecibido').value) || 0;
+            if(recibido < totalActual) {
+                alert("El dinero recibido es insuficiente.");
+                return;
+            }
+
+            // 1. Mover pedido a "Ventas del Día"
+            let pedidos = JSON.parse(localStorage.getItem('pedidosCocina')) || [];
+            let ventas = JSON.parse(localStorage.getItem('ventasDia')) || [];
+
+            const pedidoPagado = pedidos.find(p => p.id === pedidoActualId);
+            
+            if(pedidoPagado) {
+                ventas.push(pedidoPagado); // Guardamos en historial
+                localStorage.setItem('ventasDia', JSON.stringify(ventas));
+
+                // 2. Eliminar de pendientes
+                pedidos = pedidos.filter(p => p.id !== pedidoActualId);
+                localStorage.setItem('pedidosCocina', JSON.stringify(pedidos));
+            }
+
+            // 3. Cerrar y actualizar
+            cerrarCobro();
+            renderizarPedidos();
+            alert("¡Cobro registrado exitosamente!");
+        }
+
+        function cerrarCobro() {
+            document.getElementById('modalCobro').style.display = 'none';
+            pedidoActualId = null;
+        }
+
+        // --- LÓGICA CORTE DE CAJA ---
+        function abrirCorteCaja() {
+            const ventas = JSON.parse(localStorage.getItem('ventasDia')) || [];
+            const tbody = document.getElementById('tablaVentasBody');
+            const lblTotal = document.getElementById('lblTotalVentas');
+            
+            tbody.innerHTML = '';
+            let sumaTotal = 0;
+
+            if(ventas.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="3" style="text-align:center;">No hay ventas hoy</td></tr>';
+            } else {
+                ventas.forEach(v => {
+                    sumaTotal += v.total;
+                    tbody.innerHTML += `
+                        <tr>
+                            <td>#${v.numeroOrden}</td>
+                            <td>${v.hora}</td>
+                            <td>$${v.total.toFixed(2)}</td>
+                        </tr>
+                    `;
+                });
+            }
+
+            lblTotal.innerText = "$" + sumaTotal.toFixed(2);
+            document.getElementById('modalCorte').style.display = 'flex';
+        }
+
+        function borrarHistorial() {
+            if(confirm("¿Seguro que deseas reiniciar el corte de caja? Esto borrará el historial de hoy.")) {
+                localStorage.removeItem('ventasDia');
+                abrirCorteCaja(); // Recargar modal
+            }
+        }
+    </script>
+</body>
+</html>
